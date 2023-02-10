@@ -27,4 +27,4 @@ stages:
               csmFile: "$(Build.SourcesDirectory)/environment_setup/cloud-environment.json"
               overrideParameters: "-baseName $(BASE_NAME) -location $(LOCATION) -workspace $(WORKSPACE_NAME)"
               deploymentMode: "Incremental"
-            displayName: "Deploy resources to Azure"
+            displayName: "Deploy Resources to Azure"
