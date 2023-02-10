@@ -2,7 +2,7 @@ pr: main
 trigger:
   branches:
     include:
-      - mains
+      - main
 
 variables:
   - group: ml-vg
