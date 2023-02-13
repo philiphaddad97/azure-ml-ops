@@ -1,9 +1,0 @@
-entryScript: score.py
-runtime: python
-condaFile: scoring_config.yml
-extraDockerfileSteps:
-schemaFile:
-sourceDirectory:
-enableGpu: False
-baseImage:
-baseImageRegistry:
