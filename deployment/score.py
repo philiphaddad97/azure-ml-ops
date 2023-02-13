@@ -2,7 +2,7 @@ import json
 import joblib
 
 import numpy as np
-from schema import Schema, And, Use, Optional, SchemaError, Or
+from schema import Schema, And, Use, Or
 
 from azureml.core.model import Model
 
@@ -51,8 +51,10 @@ def run(raw_data):
         ).reshape(1, 8)
         result = model.predict(sample)
         return {
-            "UserID": json.dumps(result.tolist()[0]),
-            "Model": model.__class__.__name__,
+
+            "message": "success",
+            "user_id": json.dumps(result.tolist()[0]),
+            "used_model": model.__class__.__name__,
         }
     except Exception as e:
         return {"message": str(e)}
