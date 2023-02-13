@@ -27,7 +27,7 @@ def run(raw_data):
     )
     data = json.loads(raw_data)
     if input_schema.is_valid(data) is False:
-        return {"message": "Failed, the input json is not valid!"}
+        return {"message": "failed"}
     try:
         if data["Model"] == "RF":
             model = rf
@@ -48,10 +48,11 @@ def run(raw_data):
                 data["HT"]["Mean"],
                 data["HT"]["STD"],
             ]
-        ).reshape(1, 8)
+        ).reshape(
+            1, 8
+        )  # 1 sample & 8 features
         result = model.predict(sample)
         return {
-
             "message": "success",
             "user_id": json.dumps(result.tolist()[0]),
             "used_model": model.__class__.__name__,
