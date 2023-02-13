@@ -4,7 +4,7 @@ from azureml.core import Workspace
 from azureml.core.model import Model
 from azureml.core import Environment
 from azureml.core.model import InferenceConfig
-from azureml.core.webservice import AciWebservice, AksWebservice
+from azureml.core.webservice import AciWebservice
 
 
 def get_model_latest_version(ws: Workspace, model_name: str) -> str:
@@ -28,7 +28,6 @@ def main():
     parser.add_argument("--model_1", type=str, help="Name of the first model")
     parser.add_argument("--model_2", type=str, help="Name of the second model")
     parser.add_argument("--model_3", type=str, help="Name of the third model")
-    parser.add_argument("--deploy_type", type=str, help="staging or production")
     parser.add_argument(
         "--azure_secret", type=str, help="Service Principal Scecret key"
     )
@@ -59,16 +58,13 @@ def main():
     env.inferencing_stack_version = "latest"
     inference_config = InferenceConfig(entry_script="score.py", environment=env)
 
-    service_name = args.service_name
+    aci_service_name = args.service_name
 
-    if args.deploy_type == "production":
-        deployment_config = AksWebservice.deploy_configuration()
-    else:
-        deployment_config = AciWebservice.deploy_configuration()
+    deployment_config = AciWebservice.deploy_configuration(cpu_cores=2, memory_gb=1)
 
     service = Model.deploy(
         ws,
-        service_name,
+        aci_service_name,
         [model_1, model_2, model_3],
         inference_config,
         deployment_config,
