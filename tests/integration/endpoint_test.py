@@ -106,7 +106,7 @@ def test_ml_service_rf(scoreurl, scorekey):
     else:
         headers = {"Authorization": ("Bearer " + scorekey)}
 
-    resp = requests.post(scoreurl, json=json.loads(sample_xgboost), headers=headers)
+    resp = requests.post(scoreurl, json=json.loads(sample_rf), headers=headers)
     assert "success" in resp.json()["message"]
     assert isinstance(int(resp.json()["user_id"]), int)
     assert resp.json()["used_model"] == "RandomForestClassifier"
@@ -124,7 +124,7 @@ def test_ml_service_xgboost(scoreurl, scorekey):
     else:
         headers = {"Authorization": ("Bearer " + scorekey)}
 
-    resp = requests.post(scoreurl, json=json.loads(sample_rf), headers=headers)
+    resp = requests.post(scoreurl, json=json.loads(sample_xgboost), headers=headers)
     assert resp.json()["message"] == "success"
     assert isinstance(int(resp.json()["user_id"]), int)
     assert resp.json()["used_model"] == "XGBClassifier"
