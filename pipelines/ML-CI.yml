@@ -1,10 +1,10 @@
-# Variable 'azureml.location' was defined in the Variables tab
-# Variable 'azureml.resourceGroup' was defined in the Variables tab
-# Variable 'azureml.workspaceName' was defined in the Variables tab
+variables:
+  - group: ml-vg
+
 trigger:
   branches:
     include:
-    - refs/heads/dev
+    - refs/heads/main
 resources:
   repositories:
   - repository: self
@@ -62,4 +62,3 @@ jobs:
     inputs:
       path: $(Build.ArtifactStagingDirectory)
       artifactName: Landing
-...
