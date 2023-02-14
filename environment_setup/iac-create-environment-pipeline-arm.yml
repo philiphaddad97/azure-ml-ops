@@ -1,5 +1,3 @@
-pr: 
-  - main
 trigger:
   branches:
     include:
@@ -20,12 +18,12 @@ stages:
         steps:
           - task: AzureResourceGroupDeployment@2
             inputs:
-              azureSubscription: "$(AZURE_RM_SVC_CONNECTION)"
+              azureSubscription: "$(azureml.serviceConnection)"
               action: "Create Or Update Resource Group"
-              resourceGroupName: "$(RESOURCE_GROUP)"
-              location: $(LOCATION)
+              resourceGroupName: "$(azureml.resourceGroup)"
+              location: $(azureml.location)
               templateLocation: "Linked artifact"
               csmFile: "$(Build.SourcesDirectory)/environment_setup/cloud-environment.json"
-              overrideParameters: "-baseName $(BASE_NAME) -location $(LOCATION) -workspace $(WORKSPACE_NAME)"
+              overrideParameters: "-baseName $(azureml.baseName) -location $(azureml.location) -workspace $(azureml.workspaceName)"
               deploymentMode: "Incremental"
             displayName: "Deploy Resources to Azure"
