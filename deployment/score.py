@@ -1,22 +1,21 @@
-import enum
 import json
 import joblib
-from typing import Literal, Tuple
 
 import numpy as np
-from schema import Schema, And, Use, Optional, SchemaError, Or
+from schema import Schema, And, Use, Or
 
 from azureml.core.model import Model
 
 
 def init():
-    global svm, xgboost, rf, input_schema
-    # Deserialize the model files back into scikit-learn models.
+    global svm, xgboost, rf
+    # Deserialize the model files back into scikit-learn (pipeline).
     svm = joblib.load(Model.get_model_path("svm"))
     xgboost = joblib.load(Model.get_model_path("xgboost"))
     rf = joblib.load(Model.get_model_path("rf"))
 
-    # For input validation!
+
+def run(raw_data):
     input_schema = Schema(
         {
             "Model": Or("SVM", "XGBoost", "RF"),
@@ -26,12 +25,9 @@ def init():
             "RPT": {"Mean": And(Use(float)), "STD": And(Use(float))},
         }
     )
-
-
-def run(raw_data):
     data = json.loads(raw_data)
     if input_schema.is_valid(data) is False:
-        return {"message": "Failed, the input json is not valid!"}
+        return {"message": "failed"}
     try:
         if data["Model"] == "RF":
             model = rf
@@ -52,11 +48,14 @@ def run(raw_data):
                 data["HT"]["Mean"],
                 data["HT"]["STD"],
             ]
-        ).reshape(1, 8)
+        ).reshape(
+            1, 8
+        )  # 1 sample & 8 features
         result = model.predict(sample)
         return {
-            "UserID": json.dumps(result.tolist()[0]),
-            "Model": model.__class__.__name__,
+            "message": "success",
+            "user_id": json.dumps(result.tolist()[0]),
+            "used_model": model.__class__.__name__,
         }
     except Exception as e:
         return {"message": str(e)}
