@@ -1,0 +1,24 @@
+variables:
+  - group: ml-vg
+
+stages:
+  - stage: "Dev"
+    displayName: "Dev"
+    jobs:
+      - job: "Provision_Dev"
+        displayName: "Provision Dev resources"
+        pool:
+          vmImage: "ubuntu-latest"
+        timeoutInMinutes: 0
+        steps:
+          - task: AzureResourceGroupDeployment@2
+            inputs:
+              azureSubscription: "$(azureml.serviceConnection)"
+              action: "Create Or Update Resource Group"
+              resourceGroupName: "$(azureml.resourceGroup)"
+              location: $(azureml.location)
+              templateLocation: "Linked artifact"
+              csmFile: "$(Build.SourcesDirectory)/environment_setup/cloud-environment.json"
+              overrideParameters: "-baseName $(azureml.baseName) -location $(azureml.location) -workspace $(azureml.workspaceName)"
+              deploymentMode: "Incremental"
+            displayName: "Deploy Resources to Azure"
