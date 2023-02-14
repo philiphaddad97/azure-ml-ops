@@ -4,61 +4,61 @@ variables:
 trigger:
   branches:
     include:
-    - refs/heads/main
+      - refs/heads/main
 resources:
   repositories:
-  - repository: self
-    type: git
-    ref: refs/heads/dev
+    - repository: self
+      type: git
+      ref: refs/heads/dev
 jobs:
-- job: Job_1
-  displayName: Agent job 1
-  pool:
-    vmImage: ubuntu-20.04
-  steps:
-  - checkout: self
-    clean: true
-    fetchTags: false
-  - task: AzureCLI@2
-    displayName: Add ML Extension
-    inputs:
-      connectedServiceNameARM: 8ed4c4db-fa16-4b5e-8b2b-36b59f586345
-      scriptType: bash
-      scriptLocation: inlineScript
-      inlineScript: az extension add -n azure-cli-ml
-  - task: AzureCLI@2
-    displayName: Create Azure Workspace
-    inputs:
-      connectedServiceNameARM: 8ed4c4db-fa16-4b5e-8b2b-36b59f586345
-      scriptType: bash
-      scriptLocation: inlineScript
-      inlineScript: az ml workspace create -g $(azureml.resourceGroup) -w $(azureml.workspaceName) -l $(azureml.location) --exist-ok --yes
-  - task: AzureCLI@2
-    displayName: Register Models
-    inputs:
-      connectedServiceNameARM: 8ed4c4db-fa16-4b5e-8b2b-36b59f586345
-      scriptType: bash
-      scriptLocation: inlineScript
-      scriptPath: deployment/register_models.sh
-      inlineScript: >-
-        az ml model register -g $(azureml.resourceGroup) -w $(azureml.workspaceName) -n svm --model-path svc.pkl -d "SVM Classification Model to Identify Keystrokes user"
+  - job: Job_1
+    displayName: Agent job 1
+    pool:
+      vmImage: ubuntu-20.04
+    steps:
+      - checkout: self
+        clean: true
+        fetchTags: false
+      - task: AzureCLI@2
+        displayName: Add ML Extension
+        inputs:
+          connectedServiceNameARM: "$(azureml.serviceConnection)"
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: az extension add -n azure-cli-ml
+      - task: AzureCLI@2
+        displayName: Create Azure Workspace
+        inputs:
+          connectedServiceNameARM: "$(azureml.serviceConnection)"
+          scriptType: bash
+          scriptLocation: inlineScript
+          inlineScript: az ml workspace create -g $(azureml.resourceGroup) -w $(azureml.workspaceName) -l $(azureml.location) --exist-ok --yes
+      - task: AzureCLI@2
+        displayName: Register Models
+        inputs:
+          connectedServiceNameARM: "$(azureml.serviceConnection)"
+          scriptType: bash
+          scriptLocation: inlineScript
+          scriptPath: deployment/register_models.sh
+          inlineScript: >-
+            az ml model register -g $(azureml.resourceGroup) -w $(azureml.workspaceName) -n svm --model-path svc.pkl -d "SVM Classification Model to Identify Keystrokes user"
 
-        az ml model register -g $(azureml.resourceGroup) -w $(azureml.workspaceName) -n xgboost --model-path xgb_classifier.pkl -d "XGBoost Classification Model to Identify Keystrokes user"
+            az ml model register -g $(azureml.resourceGroup) -w $(azureml.workspaceName) -n xgboost --model-path xgb_classifier.pkl -d "XGBoost Classification Model to Identify Keystrokes user"
 
-        az ml model register -g $(azureml.resourceGroup) -w $(azureml.workspaceName) -n rf --model-path random_forest_classifier.pkl -d "Random Forest Classification Model to Identify Keystrokes user"
-      cwd: models
-  - task: CopyFiles@2
-    displayName: 'Copy Files to: $(Build.ArtifactStagingDirectory)'
-    inputs:
-      Contents: >
-        **/package_requirement/*
+            az ml model register -g $(azureml.resourceGroup) -w $(azureml.workspaceName) -n rf --model-path random_forest_classifier.pkl -d "Random Forest Classification Model to Identify Keystrokes user"
+          cwd: models
+      - task: CopyFiles@2
+        displayName: "Copy Files to: $(Build.ArtifactStagingDirectory)"
+        inputs:
+          Contents: >
+            **/package_requirement/*
 
-        **/deployment/*
+            **/deployment/*
 
-        **/tests/integration/*
-      TargetFolder: $(Build.ArtifactStagingDirectory)
-  - task: PublishPipelineArtifact@1
-    displayName: Publish Pipeline Artifact
-    inputs:
-      path: $(Build.ArtifactStagingDirectory)
-      artifactName: Landing
+            **/tests/integration/*
+          TargetFolder: $(Build.ArtifactStagingDirectory)
+      - task: PublishPipelineArtifact@1
+        displayName: Publish Pipeline Artifact
+        inputs:
+          path: $(Build.ArtifactStagingDirectory)
+          artifactName: Landing
