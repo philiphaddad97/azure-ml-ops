@@ -2,29 +2,31 @@ import json
 import joblib
 
 import numpy as np
-from schema import Schema, And, Use, Or
+from schema import Schema, Use, Or
 
 from azureml.core.model import Model
 
 
 def init():
-    global svm, xgboost, rf
-    # Deserialize the model files back into scikit-learn (pipeline).
+    global svm, xgboost, rf, input_schema
+    # Deserialize the model files back into scikit-learn models.
     svm = joblib.load(Model.get_model_path("svm"))
     xgboost = joblib.load(Model.get_model_path("xgboost"))
     rf = joblib.load(Model.get_model_path("rf"))
 
-
-def run(raw_data):
+    # For input validation!
     input_schema = Schema(
         {
             "Model": Or("SVM", "XGBoost", "RF"),
-            "HT": {"Mean": And(Use(float)), "STD": And(Use(float))},
-            "PPT": {"Mean": And(Use(float)), "STD": And(Use(float))},
-            "RRT": {"Mean": And(Use(float)), "STD": And(Use(float))},
-            "RPT": {"Mean": And(Use(float)), "STD": And(Use(float))},
+            "HT": {"Mean": Use(float), "STD": Use(float)},
+            "PPT": {"Mean": Use(float), "STD": Use(float)},
+            "RRT": {"Mean": Use(float), "STD": Use(float)},
+            "RPT": {"Mean": Use(float), "STD": Use(float)},
         }
     )
+
+
+def run(raw_data):
     data = json.loads(raw_data)
     if input_schema.is_valid(data) is False:
         return {"message": "failed"}
